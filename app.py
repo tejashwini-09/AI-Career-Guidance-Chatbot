@@ -167,42 +167,70 @@ st.markdown("""
 
 st.markdown("### ✨ Explore Your Career Tools")
 
+st.markdown("""
+<style>
+div.st-key-home_career button,
+div.st-key-home_resume button,
+div.st-key-home_job button {
+    background-color: #1e293b !important;
+    color: white !important;
+    border: 1px solid #334155 !important;
+    border-radius: 18px !important;
+    height: 250px !important;
+    width: 100% !important;
+    white-space: pre-wrap !important;
+    text-align: center !important;
+}
+
+div.st-key-home_career button p,
+div.st-key-home_resume button p,
+div.st-key-home_job button p {
+    font-size: 23px !important;
+    line-height: 1.8 !important;
+    font-weight: bold !important;
+}
+
+div.st-key-home_career button:hover,
+div.st-key-home_resume button:hover,
+div.st-key-home_job button:hover {
+    background-color: #334155 !important;
+}
+</style>
+""", unsafe_allow_html=True)
+
 col1, col2, col3 = st.columns(3)
 
 with col1:
-    st.markdown("""
-    <div style="background:#1e293b;padding:20px;
-    border-radius:15px;text-align:center;">
-    <h2>🎯</h2>
-    <h4>Career Guidance</h4>
-    <p>Find your suitable career path</p>
-    </div>
-    """, unsafe_allow_html=True)
+    if st.button(
+        "🎯\n\nCareer Guidance",
+        key="home_career",
+        use_container_width=True
+    ):
+        st.session_state["menu_page"] = "Career Guidance"
+        st.rerun()
 
 with col2:
-    st.markdown("""
-    <div style="background:#1e293b;padding:20px;
-    border-radius:15px;text-align:center;">
-    <h2>📄</h2>
-    <h4>Resume Analyzer</h4>
-    <p>Improve your resume with AI</p>
-    </div>
-    """, unsafe_allow_html=True)
+    if st.button(
+        "📄\n\nResume Analyzer",
+        key="home_resume",
+        use_container_width=True
+    ):
+        st.session_state["menu_page"] = "Resume Analyzer"
+        st.rerun()
 
 with col3:
-    st.markdown("""
-    <div style="background:#1e293b;padding:20px;
-    border-radius:15px;text-align:center;">
-    <h2>💼</h2>
-    <h4>Job Guidance</h4>
-    <p>Prepare for jobs and internships</p>
-    </div>
-    """, unsafe_allow_html=True)
+    if st.button(
+        "💼\n\nJob Guidance",
+        key="home_job",
+        use_container_width=True
+    ):
+        st.session_state["menu_page"] = "Job & Internship Guidance"
+        st.rerun()
+
 st.write(
     "Welcome! Get personalized career guidance "
     "based on your education, interests and skills."
 )
-
 # Connect to Gemini
 if API_KEY:
     client = genai.Client(api_key=API_KEY)
@@ -253,7 +281,8 @@ page = st.sidebar.radio(
         " Student Progress Tracker",
         "Completed Courses",
         "Job & Internship Guidance"
-    ]
+    ],
+    key="menu_page"
 )
 # Store conversation
 
@@ -316,33 +345,66 @@ st.markdown('<div id="career-guidance"></div>', unsafe_allow_html=True)
 if page == "Student Profile":
     st.header("👩‍🎓 Student Profile")
 
-    with st.form("student_form"):
+    with st.container():
 
         name = st.text_input("Enter your name")
 
         education = st.selectbox(
             "Select your education",
             ["PUC", "Diploma", "B.E/B.Tech",
-            "BCA", "B.Sc", "B.Com", "MBA", "Other"]
+             "BCA", "B.Sc", "B.Com", "MBA", "Other"]
         )
+
+        if education == "Other":
+            other_education = st.text_input(
+                "Enter your education",
+                placeholder="Example: M.Com, BBA, B.Voc..."
+            )
+
+            if other_education.strip():
+                education = other_education.strip()
 
         branch = st.text_input("Enter your branch")
 
-        interests = st.multiselect(
-            "Choose your interests",
-            ["Data Analytics",
+        interest_options = [
+            "Data Analytics",
             "Software Development",
             "Artificial Intelligence",
             "Web Development",
             "Cybersecurity",
-            "Cloud Computing"]
+            "Cloud Computing",
+            "Business Management",
+            "Finance",
+            "Accounting",
+            "Marketing",
+            "Banking",
+            "Other"
+        ]
+
+        interests = st.multiselect(
+            "Choose your interests",
+            interest_options
         )
+
+        if "Other" in interests:
+
+            other_interest = st.text_input(
+                "Enter your other interest",
+                placeholder="Example: Business, Fashion Design, Teaching..."
+            )
+
+            if other_interest.strip():
+                interests = [
+                    interest for interest in interests
+                    if interest != "Other"
+                ]
+                interests.append(other_interest.strip())
 
         skills = st.text_input(
             "Enter your skills (Python, Java, SQL...)"
         )
 
-        submit = st.form_submit_button("Get Career Guidance")
+        submit = st.button("Get Career Guidance")
 
     if submit:
 
@@ -591,19 +653,39 @@ if page == "Career Guidance":
         "for your dream career."
     )
 
+    career_options = [
+        "Data Analyst",
+        "Data Scientist",
+        "AI Engineer",
+        "Software Developer",
+        "Web Developer",
+        "Cybersecurity Analyst",
+        "Cloud Engineer",
+        "Business Analyst",
+        "Accountant",
+        "Finance Analyst",
+        "Banking Professional",
+        "Marketing Executive",
+        "HR Executive",
+        "Teacher",
+        "Other"
+    ]
+
     career_goal = st.selectbox(
         "Choose your dream career",
-        [
-            "Data Analyst",
-            "Data Scientist",
-            "AI Engineer",
-            "Software Developer",
-            "Web Developer",
-            "Cybersecurity Analyst",
-            "Cloud Engineer"
-        ],
+        career_options,
         key="skill_gap_career"
     )
+
+    if career_goal == "Other":
+
+        other_career = st.text_input(
+            "Enter your dream career",
+            placeholder="Example: Doctor, Lawyer, Fashion Designer..."
+        )
+
+        if other_career.strip():
+            career_goal = other_career.strip()
 
     current_skills = st.text_input(
         "Enter your current skills",
